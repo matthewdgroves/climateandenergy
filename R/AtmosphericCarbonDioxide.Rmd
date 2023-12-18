@@ -1,6 +1,6 @@
 ---
 title: "CarbonDioxideData"
-author: "MG"
+author: "MG, originated from project in class of Dr. Jonathan Gilligan"
 date: "2023-12-18"
 output: html_document
 ---
