@@ -1,0 +1,67 @@
+---
+title: "CarbonDioxideData"
+author: "MG"
+date: "2023-12-18"
+output: html_document
+---
+
+
+Setup:
+
+```{r setup, include=FALSE}
+knitr::knit_hooks$set(inline = function(x) { knitr:::format_sci(x, 'md')})
+knitr::opts_chunk$set(echo = TRUE)
+library(pacman)
+p_load(zoo, xml2, tidyverse, stringr)
+source('scripts/utils.R', chdir = T)
+source('scripts/modtran.R', chdir = T)
+```
+
+By virtue of its location on Hawaii in the middle of the Pacific Ocean, Mauna Loa is one of the most important atmospheric observatories in the world and has had near-continuous data since 1957.
+
+```{r import_mlo_data, include=TRUE, message=FALSE}
+mlo_data = read_csv('data/mlo_data.csv', 
+                    skip = 57,  # skip the first 57 rows
+                    col_names = c('year', 'month', 'date.excel', 'date',
+                                   'co2.raw', 'co2.raw.seas', 
+                                   'co2.fit', 'co2.fit.seas',
+                                   'co2.filled', 'co2.filled.seas'),   # give reasonable titles for each column
+                     col_types = 'iiiddddddd', # the first three columns are integers
+                                               # and the next 7 are real numbers
+                     na = '-99.99' # interpret -99.99 as a missing value
+                    )
+```
+
+Trimming unnecessary columns:
+```{r simplify_mlo_data, include = TRUE}
+mlo_simple = mlo_data %>% select(date, co2 = co2.filled) # keeping only the regular CO2 data with interpolated numbers for holes in the data
+
+head(mlo_simple) #sampling the first few rows
+```
+
+Simple plot:
+```{r plot_mlo, include = TRUE}
+ggplot(mlo_simple, 
+  aes(x = date, y = co2)) + # This line specifies the data to plot and the aesthetics that define which variables to use for the x and y axes
+  geom_line() +   # This line says to plot lines between the points
+  labs(x = "Year", y = "CO2 concentration (ppm)",
+       title = "Measured CO2 from Mauna Loa Observatory") # This line gives the names of the axes
+```
+
+Add a 12-month rolling average with a legend (plot 1) and a linear fit (plot 2):
+```{r plot_mlo_trend_2, include = TRUE, warning=FALSE}
+
+mlo_simple %>% mutate(trend = rollapply(data = co2, width = 12, FUN = mean, fill = NA, align = "center")) %>%
+  ggplot(aes(x = date)) + 
+  geom_line(aes(y = co2, color = "Raw")) +
+  geom_line(aes(y = trend, color = "12-month average"), size = 1.5) +
+  scale_color_manual(values = c("Raw" = "black", "12-month average" = "blue"), name = "Key:") +
+  labs(x = "Year", y = "CO2 concentration (ppm)", title = "Measured and Seasonally Adjusted CO2")
+
+mlo_simple %>% mutate(trend = rollapply(data = co2, width = 12, FUN = mean, fill = NA, align = "center")) %>%
+  ggplot(aes(x = date, y = co2)) + 
+  geom_line() +
+  geom_smooth(method = 'lm', color="red") +  #linear relationship of co2 and the date
+  labs(x = "Year", y = "CO2 concentration (ppm)", title = "Measured CO2 and Linear Fit")
+
+```
