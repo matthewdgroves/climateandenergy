@@ -65,3 +65,12 @@ mlo_simple %>% mutate(trend = rollapply(data = co2, width = 12, FUN = mean, fill
   labs(x = "Year", y = "CO2 concentration (ppm)", title = "Measured CO2 and Linear Fit")
 
 ```
+
+
+```{r}
+library(pacman)
+p_load_gh("gilligan-ees-3310/kayatool")
+
+launch_kaya_tool()
+
+```
