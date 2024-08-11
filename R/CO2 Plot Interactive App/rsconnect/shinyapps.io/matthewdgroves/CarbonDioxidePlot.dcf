@@ -1,0 +1,12 @@
+name: CarbonDioxidePlot
+title: CarbonDioxidePlot
+username: matthewdgroves
+account: matthewdgroves
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 12437379
+bundleId: 8970987
+url: https://matthewdgroves.shinyapps.io/CarbonDioxidePlot/
+version: 1
+asMultiple: FALSE
+asStatic: FALSE
